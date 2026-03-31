@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgênciaFacilZap — Painel de Conteúdo</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- React + Babel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+
+  <style>
+    /* ════════════════════════════════════════
+       DESIGN TOKENS
+    ════════════════════════════════════════ */
+    :root {
+      --bg-primary:        #0a0a0f;
+      --bg-secondary:      #0f0f1a;
+      --bg-card:           rgba(255,255,255,0.03);
+      --border:            rgba(255,255,255,0.08);
+      --border-subtle:     rgba(255,255,255,0.04);
+      --border-sidebar:    rgba(255,255,255,0.06);
+      --accent-green:      #00ff88;
+      --accent-green-dark: #00cc6a;
+      --accent-green-dim:  rgba(0,255,136,0.12);
+      --accent-green-glow: rgba(0,255,136,0.25);
+      --accent-green-faint:rgba(0,255,136,0.04);
+      --text-primary:      #ffffff;
+      --text-secondary:    rgba(255,255,255,0.55);
+      --text-muted:        rgba(255,255,255,0.25);
+      --text-inverse:      #0a0a0f;
+      --font-display:      'Syne', sans-serif;
+      --font-body:         'DM Sans', sans-serif;
+      --font-mono:         'JetBrains Mono', monospace;
+      --sidebar-width:     240px;
+      --radius-sm:         8px;
+      --radius-md:         12px;
+      --radius-lg:         16px;
+      --radius-xl:         20px;
+    }
+
+    /* ════════════════════════════════════════
+       RESET + BASE
+    ════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    input, textarea, select, button { font-family: inherit; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+    ::selection { background: rgba(0,255,136,0.2); color: #fff; }
+
+    /* ════════════════════════════════════════
+       KEYFRAMES
+    ════════════════════════════════════════ */
+    @keyframes shimmer {
+      0%   { left: -80%; }
+      100% { left: 130%; }
+    }
+    @keyframes badge-pulse {
+      0%, 100% { border-color: rgba(255,255,255,0.18); }
+      50%       { border-color: rgba(255,255,255,0.5); }
+    }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.5); }
+      50%       { box-shadow: 0 0 0 5px rgba(0,255,136,0); }
+    }
+    @keyframes slideInToast {
+      from { transform: translateX(90px) scale(0.88); opacity: 0; }
+      to   { transform: translateX(0)    scale(1);    opacity: 1; }
+    }
+    @keyframes fadeInCard {
+      from { transform: translateY(10px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════ */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-width); height: 100vh;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-sidebar);
+      display: flex; flex-direction: column;
+      z-index: 100;
+    }
+    .logo-area {
+      padding: 28px 22px 22px;
+      border-bottom: 1px solid var(--border-sidebar);
+    }
+    .logo-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-icon {
+      font-size: 18px;
+      filter: drop-shadow(0 0 8px rgba(0,255,136,0.7)) drop-shadow(0 0 18px rgba(0,255,136,0.35));
+      line-height: 1;
+    }
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 16px; font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.4px;
+    }
+    .logo-sub {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text-muted);
+      margin-top: 6px; letter-spacing: 0.3px;
+    }
+    .nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 22px; cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 200ms ease;
+      font-size: 13.5px; font-weight: 500;
+      color: var(--text-muted);
+      user-select: none;
+    }
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.03);
+      border-left-color: rgba(255,255,255,0.18);
+    }
+    .nav-item.active {
+      color: var(--accent-green);
+      background: rgba(0,255,136,0.05);
+      border-left-color: var(--accent-green);
+    }
+    .nav-icon { width: 18px; text-align: center; font-size: 13px; flex-shrink: 0; }
+    .sidebar-footer {
+      padding: 18px 22px;
+      border-top: 1px solid var(--border-sidebar);
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-muted);
+    }
+    .status-pulse {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--accent-green);
+      margin-right: 8px; vertical-align: middle;
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+
+    /* ════════════════════════════════════════
+       LAYOUT PRINCIPAL
+    ════════════════════════════════════════ */
+    .main { margin-left: var(--sidebar-width); min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 62px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-title {
+      font-family: var(--font-display);
+      font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .topbar-user {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-muted);
+    }
+    .content { padding: 32px; }
+
+    /* ════════════════════════════════════════
+       BOTÕES
+    ════════════════════════════════════════ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 18px; border-radius: var(--radius-sm);
+      border: none; cursor: pointer;
+      font-size: 13px; font-weight: 600; font-family: var(--font-body);
+      transition: all 200ms ease;
+      position: relative; overflow: hidden;
+      white-space: nowrap;
+    }
+    .btn::before {
+      content: '';
+      position: absolute; top: 0; left: -80%;
+      width: 55%; height: 100%;
+      background: linear-gradient(to right,
+        transparent,
+        rgba(255,255,255,0.28),
+        transparent);
+      transform: skewX(-18deg);
+    }
+    .btn:hover::before { animation: shimmer 0.55s ease; }
+    .btn-primary {
+      background: var(--accent-green);
+      color: var(--text-inverse);
+      font-weight: 700;
+    }
+    .btn-primary:hover {
+      background: var(--accent-green-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,255,136,0.22);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.09);
+      color: var(--text-primary);
+      border-color: rgba(255,255,255,0.16);
+    }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+    .btn-ghost {
+      background: transparent; color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .btn-ghost:hover { color: var(--text-primary); border-color: var(--border); }
+
+    /* ════════════════════════════════════════
+       CARDS
+    ════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      animation: fadeInCard 0.35s ease both;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 700;
+      letter-spacing: -0.2px; margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    /* ════════════════════════════════════════
+       METRIC CARDS
+    ════════════════════════════════════════ */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 16px; margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px 22px;
+      position: relative; overflow: hidden;
+      transition: border-color 250ms ease, transform 250ms ease, box-shadow 250ms ease;
+      animation: fadeInCard 0.4s ease both;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(0,255,136,0.05) 0%,
+        transparent 55%);
+      pointer-events: none;
+    }
+    .stat-card:hover {
+      border-color: rgba(0,255,136,0.22);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 14px;
+    }
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 40px; font-weight: 700; line-height: 1;
+      color: var(--text-primary);
+      text-shadow: 0 0 28px rgba(0,255,136,0.22);
+      margin-bottom: 10px;
+    }
+    .stat-change {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-muted);
+    }
+    .stat-change .up {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    /* ════════════════════════════════════════
+       SECTION HEADER
+    ════════════════════════════════════════ */
+    .section-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+    }
+
+    /* ════════════════════════════════════════
+       TABLE
+    ════════════════════════════════════════ */
+    .calendar-table { width: 100%; border-collapse: collapse; }
+    .calendar-table th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1.2px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+    }
+    .calendar-table td {
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 13.5px;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+    .calendar-table tr:last-child td { border-bottom: none; }
+    .calendar-table tr:hover td {
+      background: rgba(255,255,255,0.028);
+      transform: translateX(4px);
+    }
+    .date-cell {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ════════════════════════════════════════
+       BADGES
+    ════════════════════════════════════════ */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.6px;
+    }
+    .badge-video {
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+      border: 1px solid rgba(0,255,136,0.22);
+    }
+    .badge-post {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .badge-pending {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.2);
+      animation: badge-pulse 2.5s ease-in-out infinite;
+    }
+    .badge-done {
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+      border: 1px solid rgba(0,255,136,0.22);
+    }
+    .badge-progress {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* ════════════════════════════════════════
+       DOIS COLUNAS
+    ════════════════════════════════════════ */
+    .two-col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 24px; margin-top: 28px;
+    }
+
+    /* ════════════════════════════════════════
+       ACTIVITY FEED
+    ════════════════════════════════════════ */
+    .activity-item {
+      display: flex; gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      background: rgba(0,255,136,0.07);
+      border: 1px solid rgba(0,255,136,0.14);
+    }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-title {
+      font-size: 13px; color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    .activity-time {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-muted); margin-top: 3px;
+    }
+
+    /* ════════════════════════════════════════
+       PROGRESS BARS
+    ════════════════════════════════════════ */
+    .progress-wrap { margin-bottom: 18px; }
+    .progress-header {
+      display: flex; justify-content: space-between;
+      font-size: 13px; margin-bottom: 8px;
+    }
+    .progress-label { color: var(--text-secondary); }
+    .progress-val {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--accent-green); font-weight: 600;
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px; height: 4px; overflow: visible;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent-green-dark), var(--accent-green));
+      transition: width 0.85s cubic-bezier(0.22,1,0.36,1);
+      position: relative;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute; right: -1px; top: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-green);
+      transform: translateY(-50%);
+      box-shadow: 0 0 7px var(--accent-green);
+    }
+    .code-note {
+      margin-top: 20px; padding: 13px 15px;
+      background: var(--accent-green-faint);
+      border: 1px solid rgba(0,255,136,0.12);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ════════════════════════════════════════
+       FORMULÁRIOS
+    ════════════════════════════════════════ */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      padding: 11px 14px; font-size: 14px;
+      font-family: var(--font-body);
+      transition: border-color 200ms, box-shadow 200ms;
+    }
+    .form-input::placeholder, .form-textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: rgba(0,255,136,0.4);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+    }
+    .form-textarea { resize: vertical; min-height: 88px; }
+    .form-select { cursor: pointer; }
+
+    /* ════════════════════════════════════════
+       TABS
+    ════════════════════════════════════════ */
+    .tabs {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      padding: 4px; border-radius: 12px; margin-bottom: 24px;
+    }
+    .tab-btn {
+      flex: 1; padding: 9px 12px; border: none; background: none;
+      color: var(--text-muted); cursor: pointer; border-radius: 9px;
+      font-size: 13px; font-weight: 600; font-family: var(--font-body);
+      transition: all 200ms ease;
+    }
+    .tab-btn.active { background: var(--accent-green); color: var(--text-inverse); }
+    .tab-btn:not(.active):hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ════════════════════════════════════════
+       INFO BOX
+    ════════════════════════════════════════ */
+    .info-box {
+      background: var(--accent-green-faint);
+      border: 1px solid rgba(0,255,136,0.15);
+      border-left: 3px solid var(--accent-green);
+      padding: 13px 16px; border-radius: var(--radius-sm);
+      margin-bottom: 18px;
+      font-size: 13px; color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .info-box strong { color: var(--accent-green); }
+
+    /* ════════════════════════════════════════
+       STATUS DOT
+    ════════════════════════════════════════ */
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      display: inline-block; margin-right: 9px;
+      vertical-align: middle;
+    }
+    .dot-green {
+      background: var(--accent-green);
+      box-shadow: 0 0 6px rgba(0,255,136,0.5);
+    }
+    .dot-dim { background: rgba(255,255,255,0.2); }
+
+    /* ════════════════════════════════════════
+       TOAST
+    ════════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--accent-green); color: var(--text-inverse);
+      padding: 13px 22px; border-radius: 12px;
+      font-size: 14px; font-weight: 700; font-family: var(--font-body);
+      z-index: 9999;
+      animation: slideInToast 0.32s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 4px 28px rgba(0,255,136,0.32);
+      max-width: 360px;
+    }
+
+    /* ════════════════════════════════════════
+       ÚLTIMAS GERAÇÕES — lista
+    ════════════════════════════════════════ */
+    .gen-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 13px; gap: 12px;
+    }
+    .gen-item:last-child { border-bottom: none; }
+    .gen-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .gen-theme { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gen-right { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+    .gen-date { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+    /* ════════════════════════════════════════
+       INTEGRAÇÕES — lista
+    ════════════════════════════════════════ */
+    .integration-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 13px;
+    }
+    .integration-item:last-child { border-bottom: none; }
+    .integration-name { font-weight: 500; }
+    .integration-note { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ── WEBHOOKS ── */
+const N8N_BASE = 'https://facilzap.app.n8n.cloud/webhook';
+const WEBHOOKS = {
+  triggerVideo: `${N8N_BASE}/gerar-video`,
+  triggerPost:  `${N8N_BASE}/gerar-post`,
+  getCalendar:  `${N8N_BASE}/calendario`,
+};
+
+/* ── DADOS ── */
+const CALENDAR_DATA = [
+  { id:1, date:'31/03', day:'Seg', type:'video', theme:'Como o WhatsApp pode dobrar suas vendas',   keywords:'vendas, automação, WhatsApp', status:'pending' },
+  { id:2, date:'01/04', day:'Ter', type:'post',  theme:'FacilZap vs atendimento manual',            keywords:'comparativo, produtividade',   status:'pending' },
+  { id:3, date:'02/04', day:'Qua', type:'video', theme:'5 erros que impedem sua empresa de crescer',keywords:'erros, crescimento, PME',      status:'pending' },
+  { id:4, date:'03/04', day:'Qui', type:'post',  theme:'3 motivos para automatizar hoje',           keywords:'urgência, benefícios, ROI',    status:'pending' },
+  { id:5, date:'04/04', day:'Sex', type:'video', theme:'Atendimento 24h sem contratar ninguém',     keywords:'automação, suporte, 24h',      status:'pending' },
+  { id:6, date:'05/04', day:'Sáb', type:'post',  theme:'Depoimento: cliente economizou 20h/semana',keywords:'depoimento, prova social',     status:'pending' },
+  { id:7, date:'07/04', day:'Seg', type:'video', theme:'Passo a passo: primeiro fluxo no FacilZap', keywords:'tutorial, onboarding',        status:'pending' },
+  { id:8, date:'09/04', day:'Qua', type:'video', theme:'Como responder 100 clientes ao mesmo tempo',keywords:'escala, eficiência, volume',  status:'pending' },
+];
+
+const ACTIVITY_FEED = [
+  { icon:'✅', title:'Vídeo "Como dobrar vendas" publicado no Instagram', time:'Há 2 horas' },
+  { icon:'🎬', title:'Geração de vídeo iniciada para terça-feira',         time:'Há 3 horas' },
+  { icon:'🖼️', title:'Post imagem publicado com sucesso',                  time:'Ontem, 11h' },
+  { icon:'✅', title:'Script gerado pelo GPT-4o aprovado automaticamente', time:'Ontem, 09h' },
+  { icon:'🎬', title:'Avatar HeyGen renderizado em 1m 32s',                time:'Há 2 dias'  },
+];
+
+/* ── HOOK: COUNT-UP ── */
+function useCountUp(target, duration = 1400) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let frame = 0;
+    const totalFrames = Math.round(duration / 16);
+    const timer = setInterval(() => {
+      frame++;
+      const progress = frame / totalFrames;
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setVal(Math.min(target, Math.round(target * eased)));
+      if (frame >= totalFrames) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [target]);
+  return val;
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+function Sidebar({ active, setActive }) {
+  const items = [
+    { id:'dashboard', icon:'◈', label:'Dashboard'      },
+    { id:'calendar',  icon:'▦', label:'Calendário'     },
+    { id:'generate',  icon:'⊕', label:'Gerar Conteúdo' },
+    { id:'videos',    icon:'▷', label:'Vídeos'         },
+    { id:'posts',     icon:'⊞', label:'Posts'          },
+    { id:'settings',  icon:'⊛', label:'Configurações'  },
+  ];
+  return (
+    <div className="sidebar">
+      <div className="logo-area">
+        <div className="logo-row">
+          <span className="logo-icon">⚡</span>
+          <span className="logo-text">AgênciaFacilZap</span>
+        </div>
+        <div className="logo-sub">// painel de automação</div>
+      </div>
+      <nav className="nav">
+        {items.map(item => (
+          <div
+            key={item.id}
+            className={`nav-item${active === item.id ? ' active' : ''}`}
+            onClick={() => setActive(item.id)}
+          >
+            <span className="nav-icon" style={{fontFamily:'var(--font-mono)'}}>{item.icon}</span>
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </nav>
+      <div className="sidebar-footer">
+        <div><span className="status-pulse" />sistema ativo</div>
+        <div style={{marginTop:4, fontSize:10}}>n8n · online</div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   METRIC CARD
+═══════════════════════════════════════ */
+function StatCard({ label, numValue, suffix, change, delay = 0 }) {
+  const count = useCountUp(numValue, 1400 + delay);
+  return (
+    <div className="stat-card" style={{animationDelay:`${delay}ms`}}>
+      <div className="stat-label">{label}</div>
+      <div className="stat-value">{count}{suffix}</div>
+      <div className="stat-change">
+        {change.startsWith('↑')
+          ? <span className="up">{change}</span>
+          : change}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════ */
+function Dashboard({ setActive, toast }) {
+  return (
+    <>
+      <div className="stats-grid">
+        <StatCard label="🎬  VÍDEOS PUBLICADOS" numValue={12} suffix=""  change="↑ 4 este mês"       delay={0}   />
+        <StatCard label="🖼️  POSTS PUBLICADOS"  numValue={18} suffix=""  change="↑ 6 este mês"       delay={80}  />
+        <StatCard label="👁  ALCANCE ESTIMADO"  numValue={24} suffix="k" change="↑ 18% vs mês ant."  delay={160} />
+        <StatCard label="📅  PUBLICAÇÕES / MÊS" numValue={5}  suffix=""  change="↑ meta atingida"    delay={240} />
+      </div>
+
+      <div className="section-header">
+        <span className="section-title">Próximos conteúdos</span>
+        <button className="btn btn-secondary btn-sm" onClick={() => setActive('calendar')}>
+          Ver calendário completo →
+        </button>
+      </div>
+
+      <div className="card" style={{padding:0, overflow:'hidden'}}>
+        <table className="calendar-table">
+          <thead>
+            <tr>
+              <th style={{paddingLeft:22}}>Data</th>
+              <th>Tipo</th>
+              <th>Tema</th>
+              <th>Status</th>
+              <th style={{paddingRight:22}}>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            {CALENDAR_DATA.slice(0, 4).map(row => (
+              <tr key={row.id}>
+                <td className="date-cell" style={{paddingLeft:22}}>
+                  {row.date} · {row.day}
+                </td>
+                <td>
+                  <span className={`badge badge-${row.type}`}>
+                    {row.type === 'video' ? '▷ Vídeo' : '⊞ Post'}
+                  </span>
+                </td>
+                <td style={{color:'var(--text-secondary)', maxWidth:280}}>
+                  {row.theme}
+                </td>
+                <td>
+                  <span className="badge badge-pending">Pendente</span>
+                </td>
+                <td style={{paddingRight:22}}>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => toast(`Gerando: ${row.theme.substring(0,32)}...`)}
+                  >
+                    Gerar agora
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="two-col">
+        {/* Atividade recente */}
+        <div className="card">
+          <div className="card-title">Atividade recente</div>
+          {ACTIVITY_FEED.map((a, i) => (
+            <div className="activity-item" key={i}>
+              <div className="activity-icon">{a.icon}</div>
+              <div className="activity-body">
+                <div className="activity-title">{a.title}</div>
+                <div className="activity-time">{a.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Performance */}
+        <div className="card">
+          <div className="card-title">Performance desta semana</div>
+          {[
+            {label:'Vídeos gerados',           val:3, max:3, pct:100},
+            {label:'Posts gerados',             val:3, max:3, pct:100},
+            {label:'Publicações Instagram',     val:5, max:6, pct:83},
+            {label:'Taxa de aprovação automática', val:6, max:6, pct:100},
+          ].map((m, i) => (
+            <div className="progress-wrap" key={i}>
+              <div className="progress-header">
+                <span className="progress-label">{m.label}</span>
+                <span className="progress-val">{m.val}/{m.max}</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{width:`${m.pct}%`}} />
+              </div>
+            </div>
+          ))}
+          <div className="code-note">
+            // sistema 100% automático — nenhuma ação manual necessária esta semana
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════
+   CALENDÁRIO
+═══════════════════════════════════════ */
+function Calendar({ toast }) {
+  const [items, setItems] = useState(CALENDAR_DATA);
+  const toggle = (id) => setItems(prev =>
+    prev.map(i => i.id === id
+      ? {...i, status: i.status === 'pending' ? 'done' : 'pending'}
+      : i
+    )
+  );
+  return (
+    <>
+      <div className="section-header">
+        <span className="section-title">Calendário Editorial — Abril 2025</span>
+        <div style={{display:'flex', gap:8}}>
+          <button className="btn btn-secondary btn-sm">↓ Importar Obsidian</button>
+          <button className="btn btn-primary btn-sm" onClick={() => toast('Todos os conteúdos agendados!')}>
+            Agendar todos
+          </button>
+        </div>
+      </div>
+      <div className="card" style={{padding:0, overflow:'hidden'}}>
+        <table className="calendar-table">
+          <thead>
+            <tr>
+              <th style={{paddingLeft:22}}>Data</th>
+              <th>Dia</th><th>Tipo</th><th>Tema</th>
+              <th>Palavras-chave</th><th>Status</th>
+              <th style={{paddingRight:22}}>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(row => (
+              <tr key={row.id}>
+                <td className="date-cell" style={{paddingLeft:22}}>{row.date}</td>
+                <td className="date-cell">{row.day}</td>
+                <td>
+                  <span className={`badge badge-${row.type}`}>
+                    {row.type === 'video' ? '▷ Vídeo' : '⊞ Post'}
+                  </span>
+                </td>
+                <td style={{maxWidth:230, color:'var(--text-secondary)'}}>{row.theme}</td>
+                <td style={{maxWidth:160}}>
+                  <span style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--text-muted)'}}>
+                    {row.keywords}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${row.status === 'done' ? 'badge-done' : 'badge-pending'}`}>
+                    {row.status === 'done' ? '✓ Feito' : 'Pendente'}
+                  </span>
+                </td>
+                <td style={{paddingRight:22}}>
+                  <div style={{display:'flex', gap:6}}>
+                    <button className="btn btn-primary btn-sm"
+                      onClick={() => toast(`Gerando: ${row.theme.substring(0,28)}...`)}>
+                      Gerar
+                    </button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => toggle(row.id)}>✏</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════
+   GERAR CONTEÚDO
+═══════════════════════════════════════ */
+function Generate({ toast }) {
+  const [tab, setTab]       = useState('video');
+  const [theme, setTheme]   = useState('');
+  const [kws, setKws]       = useState('');
+  const [extra, setExtra]   = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!theme.trim()) { toast('Informe o tema do conteúdo!'); return; }
+    setLoading(true);
+    try {
+      await fetch(tab === 'video' ? WEBHOOKS.triggerVideo : WEBHOOKS.triggerPost, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({theme, keywords:kws, extra, type:tab})
+      });
+      toast(`${tab === 'video' ? 'Vídeo' : 'Post'} em geração — será publicado automaticamente!`);
+      setTheme(''); setKws(''); setExtra('');
+    } catch(e) {
+      toast('Webhook disparado — verifique se o n8n está ativo');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{maxWidth:640}}>
+      <div className="tabs">
+        <button className={`tab-btn${tab === 'video' ? ' active' : ''}`} onClick={() => setTab('video')}>
+          ▷ Gerar Vídeo (Reels)
+        </button>
+        <button className={`tab-btn${tab === 'post' ? ' active' : ''}`} onClick={() => setTab('post')}>
+          ⊞ Gerar Post (Imagem)
+        </button>
+      </div>
+
+      <div className="card">
+        <div className="card-title">
+          {tab === 'video' ? 'Gerar Vídeo com Avatar do Ednardo' : 'Gerar Post para o Feed'}
+        </div>
+        <div className="form-group">
+          <label className="form-label">Tema do conteúdo *</label>
+          <input className="form-input" value={theme} onChange={e => setTheme(e.target.value)}
+            placeholder={tab === 'video'
+              ? 'Como automatizar o WhatsApp da sua empresa'
+              : '3 vantagens do FacilZap'} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Palavras-chave</label>
+          <input className="form-input" value={kws} onChange={e => setKws(e.target.value)}
+            placeholder="automação, WhatsApp, vendas, PME" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Instruções para o GPT-4o</label>
+          <textarea className="form-textarea" value={extra} onChange={e => setExtra(e.target.value)}
+            placeholder="Ex: Foque no público de restaurantes. Tom mais informal. Incluir chamada para testar grátis." />
+        </div>
+        <div className="info-box">
+          <strong>Fluxo automático: </strong>
+          {tab === 'video'
+            ? 'GPT-4o gera script → HeyGen cria avatar → Creatomate adiciona legendas → Publica no Instagram Reels'
+            : 'GPT-4o gera texto → DALL-E 3 cria imagem → Creatomate monta post com logo → Publica no Instagram Feed'}
+        </div>
+        <button
+          className="btn btn-primary"
+          style={{width:'100%', padding:'13px', fontSize:14}}
+          onClick={handleGenerate}
+          disabled={loading}
+        >
+          {loading ? '⏳ Enviando para n8n...' : `Gerar e Publicar ${tab === 'video' ? 'Vídeo' : 'Post'}`}
+        </button>
+      </div>
+
+      <div className="card" style={{marginTop:20}}>
+        <div className="card-title">Últimas gerações</div>
+        {[
+          {type:'video', theme:'Como dobrar suas vendas com WhatsApp', date:'29/03 09:02'},
+          {type:'post',  theme:'FacilZap economiza 20h por semana',    date:'27/03 11:05'},
+          {type:'video', theme:'Atendimento 24h sem contratar ninguém',date:'26/03 09:00'},
+        ].map((g, i) => (
+          <div className="gen-item" key={i}>
+            <div className="gen-left">
+              <span className={`badge badge-${g.type}`}>{g.type === 'video' ? '▷' : '⊞'}</span>
+              <span className="gen-theme">{g.theme}</span>
+            </div>
+            <div className="gen-right">
+              <span className="gen-date">{g.date}</span>
+              <span className="badge badge-done">✓ Publicado</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   CONFIGURAÇ��ES
+═══════════════════════════════════════ */
+function Settings({ toast }) {
+  const [n8nUrl, setN8nUrl] = useState('https://facilzap.app.n8n.cloud');
+  const save = () => toast('Configurações salvas!');
+
+  return (
+    <div style={{maxWidth:580}}>
+      <div className="card">
+        <div className="card-title">Conexões do Sistema</div>
+        {[
+          {label:'URL do n8n',   val:n8nUrl, set:setN8nUrl, hint:'https://facilzap.app.n8n.cloud'},
+          {label:'Instagram @',  val:'@facilzapoficial', set:()=>{}, hint:'@suaconta'},
+          {label:'Google Sheet ID', val:'', set:()=>{}, hint:'1BxiM...'},
+        ].map((f, i) => (
+          <div className="form-group" key={i}>
+            <label className="form-label">{f.label}</label>
+            <input className="form-input" value={f.val}
+              onChange={e => f.set(e.target.value)} placeholder={f.hint} />
+          </div>
+        ))}
+        <button className="btn btn-primary" onClick={save}>Salvar configurações</button>
+      </div>
+
+      <div className="card" style={{marginTop:20}}>
+        <div className="card-title">Status das Integrações</div>
+        {[
+          {name:'n8n Cloud',        ok:true,  note:'facilzap.app.n8n.cloud'},
+          {name:'OpenAI GPT-4o',    ok:true,  note:'API Key configurada'},
+          {name:'HeyGen Avatar',    ok:true,  note:'FacilZap-n8n key ativa'},
+          {name:'Creatomate',       ok:false, note:'Aguardando API key'},
+          {name:'Instagram / Meta', ok:false, note:'Aguardando configuração'},
+          {name:'Google Sheets',    ok:false, note:'Aguardando planilha'},
+        ].map((s, i) => (
+          <div className="integration-item" key={i}>
+            <div>
+              <span className={`status-dot ${s.ok ? 'dot-green' : 'dot-dim'}`} />
+              <span className="integration-name"
+                style={{color: s.ok ? 'var(--text-primary)' : 'var(--text-secondary)'}}>
+                {s.name}
+              </span>
+            </div>
+            <span className="integration-note">{s.note}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   APP PRINCIPAL
+═══════════════════════════════════════ */
+function App() {
+  const [active, setActive]   = useState('dashboard');
+  const [toastMsg, setToastMsg] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3500);
+  };
+
+  const titles = {
+    dashboard: 'Dashboard',
+    calendar:  'Calendário Editorial',
+    generate:  'Gerar Conteúdo',
+    videos:    'Vídeos Publicados',
+    posts:     'Posts Publicados',
+    settings:  'Configurações',
+  };
+
+  const pages = {
+    dashboard: <Dashboard setActive={setActive} toast={showToast} />,
+    calendar:  <Calendar  toast={showToast} />,
+    generate:  <Generate  toast={showToast} />,
+    videos: (
+      <div className="card">
+        <div className="card-title">Vídeos Publicados</div>
+        <p style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--text-muted)',lineHeight:1.8}}>
+          // biblioteca de vídeos publicados em breve<br/>
+          // integração com Instagram Graph API pendente
+        </p>
+      </div>
+    ),
+    posts: (
+      <div className="card">
+        <div className="card-title">Posts Publicados</div>
+        <p style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--text-muted)',lineHeight:1.8}}>
+          // biblioteca de posts publicados em breve<br/>
+          // integração com Instagram Graph API pendente
+        </p>
+      </div>
+    ),
+    settings: <Settings toast={showToast} />,
+  };
+
+  return (
+    <>
+      <Sidebar active={active} setActive={setActive} />
+      <div className="main">
+        <div className="topbar">
+          <div className="topbar-title">{titles[active]}</div>
+          <div className="topbar-right">
+            <span className="topbar-user">FacilZap · Ednardo</span>
+            <button className="btn btn-primary btn-sm" onClick={() => setActive('generate')}>
+              + Gerar conteúdo
+            </button>
+          </div>
+        </div>
+        <div className="content">
+          {pages[active]}
+        </div>
+      </div>
+      {toastMsg && <div className="toast">{toastMsg}</div>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
