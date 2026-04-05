@@ -1250,9 +1250,46 @@ function ContentQueue({ tipo, toast }) {
   const [tab, setTab]             = useState('revisao');
   const [scheduleItem, setScheduleItem] = useState(null);
 
-  const reload = useCallback(() => {
-    const all = getLocalQueue();
-    setQueue(all.filter(i => i.tipo === tipo));
+  const reload = useCallback(async () => {
+    // 1. Start with localStorage
+    let local = getLocalQueue();
+
+    // 2. Merge with n8n queue (Google Sheets backend)
+    try {
+      const resp = await fetch(WEBHOOKS.getQueue, { method: 'GET' });
+      if (resp.ok) {
+        const data = await resp.json();
+        const n8nItems = Array.isArray(data) ? data : (data.items || data.data || []);
+
+        n8nItems.forEach(n8nItem => {
+          const id = n8nItem.item_id;
+          if (!id) return;
+          const existing = local.find(i => i.id === id);
+
+          if (!existing) {
+            local = [...local, {
+              id,
+              tipo: n8nItem.tipo || 'video',
+              tema: n8nItem.tema || '',
+              status: n8nItem.status || 'pendente',
+              url: n8nItem.url || null,
+              criado_em: n8nItem.criado_em || new Date().toISOString()
+            }];
+          } else if (existing.status === 'gerando' && n8nItem.status === 'pendente') {
+            local = local.map(i => i.id === id
+              ? { ...i, status: 'pendente', url: n8nItem.url || i.url }
+              : i
+            );
+          }
+        });
+
+        saveLocalQueue(local);
+      }
+    } catch (_) {
+      // n8n unreachable -- use localStorage only
+    }
+
+    setQueue(local.filter(i => i.tipo === tipo));
   }, [tipo]);
 
   useEffect(() => {
