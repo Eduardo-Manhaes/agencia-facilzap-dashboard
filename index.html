@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgênciaFacilZap — Painel de Conteúdo</title>
 
   <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- React + Babel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -31,6 +31,10 @@
       --accent-green-dim:  rgba(0,255,136,0.12);
       --accent-green-glow: rgba(0,255,136,0.25);
       --accent-green-faint:rgba(0,255,136,0.04);
+      --accent-orange:     #ff8c42;
+      --accent-orange-dim: rgba(255,140,66,0.12);
+      --accent-red:        #ff4466;
+      --accent-red-dim:    rgba(255,68,102,0.12);
       --text-primary:      #ffffff;
       --text-secondary:    rgba(255,255,255,0.55);
       --text-muted:        rgba(255,255,255,0.25);
@@ -42,80 +46,69 @@
       --radius-sm:         8px;
       --radius-md:         12px;
       --radius-lg:         16px;
-      --radius-xl:         20px;
     }
 
     /* ════════════════════════════════════════
-       RESET + BASE
+       RESET & BASE
     ════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font-body);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
+    html, body {
+      height: 100%; background: var(--bg-primary);
+      color: var(--text-secondary); font-family: var(--font-body);
+      font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
     }
-    input, textarea, select, button { font-family: inherit; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
-    ::selection { background: rgba(0,255,136,0.2); color: #fff; }
+    #root { display: flex; min-height: 100vh; }
 
     /* ════════════════════════════════════════
-       KEYFRAMES
+       ANIMATIONS
     ════════════════════════════════════════ */
-    @keyframes shimmer {
-      0%   { left: -80%; }
-      100% { left: 130%; }
-    }
-    @keyframes badge-pulse {
-      0%, 100% { border-color: rgba(255,255,255,0.18); }
-      50%       { border-color: rgba(255,255,255,0.5); }
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes pulse-green {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.5); }
-      50%       { box-shadow: 0 0 0 5px rgba(0,255,136,0); }
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--accent-green-glow); }
+      50%       { opacity: 0.5; box-shadow: none; }
+    }
+    @keyframes shimmer {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
     }
     @keyframes slideInToast {
-      from { transform: translateX(90px) scale(0.88); opacity: 0; }
-      to   { transform: translateX(0)    scale(1);    opacity: 1; }
+      from { transform: translateY(80px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
     }
-    @keyframes fadeInCard {
-      from { transform: translateY(10px); opacity: 0; }
-      to   { transform: translateY(0);    opacity: 1; }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     /* ════════════════════════════════════════
        SIDEBAR
     ════════════════════════════════════════ */
     .sidebar {
-      position: fixed; top: 0; left: 0;
-      width: var(--sidebar-width); height: 100vh;
-      background: var(--bg-primary);
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
       border-right: 1px solid var(--border-sidebar);
       display: flex; flex-direction: column;
       z-index: 100;
     }
     .logo-area {
-      padding: 28px 22px 22px;
+      padding: 26px 22px 20px;
       border-bottom: 1px solid var(--border-sidebar);
     }
-    .logo-row {
-      display: flex; align-items: center; gap: 8px;
-    }
+    .logo-row { display: flex; align-items: center; gap: 10px; }
     .logo-icon {
-      font-size: 18px;
-      filter: drop-shadow(0 0 8px rgba(0,255,136,0.7)) drop-shadow(0 0 18px rgba(0,255,136,0.35));
-      line-height: 1;
+      font-size: 22px; width: 36px; height: 36px;
+      background: var(--accent-green-dim);
+      border: 1px solid rgba(0,255,136,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
     }
     .logo-text {
       font-family: var(--font-display);
       font-size: 16px; font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: -0.4px;
+      color: var(--text-primary); letter-spacing: -0.4px;
     }
     .logo-sub {
       font-family: var(--font-mono);
@@ -128,9 +121,7 @@
       padding: 11px 22px; cursor: pointer;
       border-left: 2px solid transparent;
       transition: all 200ms ease;
-      font-size: 13.5px; font-weight: 500;
-      color: var(--text-muted);
-      user-select: none;
+      color: var(--text-secondary); font-size: 13px; font-weight: 500;
     }
     .nav-item:hover {
       color: var(--text-primary);
@@ -143,6 +134,14 @@
       border-left-color: var(--accent-green);
     }
     .nav-icon { width: 18px; text-align: center; font-size: 13px; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent-orange);
+      color: #000;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 10px;
+      min-width: 18px; text-align: center;
+    }
     .sidebar-footer {
       padding: 18px 22px;
       border-top: 1px solid var(--border-sidebar);
@@ -159,59 +158,57 @@
     /* ════════════════════════════════════════
        LAYOUT PRINCIPAL
     ════════════════════════════════════════ */
-    .main { margin-left: var(--sidebar-width); min-height: 100vh; }
+    .main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; }
     .topbar {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(10,10,15,0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      position: sticky; top: 0;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
-      padding: 0 32px; height: 62px;
+      padding: 0 32px; height: 60px;
       display: flex; align-items: center; justify-content: space-between;
+      z-index: 50;
     }
     .topbar-title {
       font-family: var(--font-display);
-      font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+      font-size: 16px; font-weight: 700;
+      color: var(--text-primary); letter-spacing: -0.3px;
     }
     .topbar-right { display: flex; align-items: center; gap: 14px; }
     .topbar-user {
-      font-family: var(--font-mono);
-      font-size: 11px; color: var(--text-muted);
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--text-muted);
     }
-    .content { padding: 32px; }
+    .content { padding: 32px; flex: 1; }
 
     /* ════════════════════════════════════════
-       BOTÕES
+       BUTTONS
     ════════════════════════════════════════ */
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 9px 18px; border-radius: var(--radius-sm);
-      border: none; cursor: pointer;
-      font-size: 13px; font-weight: 600; font-family: var(--font-body);
-      transition: all 200ms ease;
       position: relative; overflow: hidden;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: var(--radius-sm);
+      font-family: var(--font-body); font-size: 13px;
+      font-weight: 600; cursor: pointer;
+      border: none; transition: all 200ms ease;
+      text-decoration: none;
     }
     .btn::before {
       content: '';
-      position: absolute; top: 0; left: -80%;
-      width: 55%; height: 100%;
-      background: linear-gradient(to right,
-        transparent,
-        rgba(255,255,255,0.28),
-        transparent);
-      transform: skewX(-18deg);
+      position: absolute; top: 0; left: -100%; bottom: 0;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+      transition: none;
     }
     .btn:hover::before { animation: shimmer 0.55s ease; }
     .btn-primary {
       background: var(--accent-green);
       color: var(--text-inverse);
-      font-weight: 700;
     }
     .btn-primary:hover {
       background: var(--accent-green-dark);
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0,255,136,0.22);
+      box-shadow: 0 4px 20px var(--accent-green-glow);
     }
     .btn-primary:active { transform: translateY(0); }
     .btn-secondary {
@@ -220,7 +217,7 @@
       border: 1px solid var(--border);
     }
     .btn-secondary:hover {
-      background: rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.08);
       color: var(--text-primary);
       border-color: rgba(255,255,255,0.16);
     }
@@ -230,6 +227,24 @@
       border: 1px solid transparent;
     }
     .btn-ghost:hover { color: var(--text-primary); border-color: var(--border); }
+    .btn-danger {
+      background: var(--accent-red-dim);
+      color: var(--accent-red);
+      border: 1px solid rgba(255,68,102,0.2);
+    }
+    .btn-danger:hover {
+      background: rgba(255,68,102,0.2);
+      transform: translateY(-1px);
+    }
+    .btn-approve {
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+      border: 1px solid rgba(0,255,136,0.2);
+    }
+    .btn-approve:hover {
+      background: rgba(0,255,136,0.2);
+      transform: translateY(-1px);
+    }
 
     /* ════════════════════════════════════════
        CARDS
@@ -270,308 +285,389 @@
     .stat-card::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg,
-        rgba(0,255,136,0.05) 0%,
-        transparent 55%);
+      background: linear-gradient(135deg, rgba(0,255,136,0.05) 0%, transparent 55%);
       pointer-events: none;
     }
     .stat-card:hover {
-      border-color: rgba(0,255,136,0.22);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+      border-color: rgba(0,255,136,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,255,136,0.06);
     }
     .stat-label {
-      font-family: var(--font-mono);
-      font-size: 10px; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 1.2px;
-      margin-bottom: 14px;
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-muted); letter-spacing: 0.8px;
+      text-transform: uppercase; margin-bottom: 12px;
     }
     .stat-value {
-      font-family: var(--font-display);
-      font-size: 40px; font-weight: 700; line-height: 1;
-      color: var(--text-primary);
-      text-shadow: 0 0 28px rgba(0,255,136,0.22);
-      margin-bottom: 10px;
+      font-family: var(--font-display); font-size: 36px;
+      font-weight: 800; color: var(--text-primary);
+      letter-spacing: -1.5px; line-height: 1;
     }
-    .stat-change {
-      font-family: var(--font-mono);
-      font-size: 11px; color: var(--text-muted);
-    }
-    .stat-change .up {
-      color: var(--accent-green);
-      font-weight: 600;
-    }
+    .stat-change { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .stat-change .up { color: var(--accent-green); }
 
     /* ════════════════════════════════════════
        SECTION HEADER
     ════════════════════════════════════════ */
     .section-header {
-      display: flex; align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 16px;
     }
     .section-title {
-      font-family: var(--font-display);
-      font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+      font-family: var(--font-display); font-size: 13px;
+      font-weight: 700; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     /* ════════════════════════════════════════
        TABLE
     ════════════════════════════════════════ */
-    .calendar-table { width: 100%; border-collapse: collapse; }
+    .calendar-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .calendar-table th {
-      text-align: left;
-      font-family: var(--font-mono);
-      font-size: 10px; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 1.2px;
-      padding: 10px 14px;
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px;
+      padding: 14px 12px; text-align: left;
       border-bottom: 1px solid var(--border);
-      font-weight: 500;
     }
     .calendar-table td {
-      padding: 14px 14px;
+      padding: 14px 12px;
       border-bottom: 1px solid var(--border-subtle);
-      font-size: 13.5px;
-      transition: background 180ms ease, transform 180ms ease;
+      color: var(--text-secondary);
     }
-    .calendar-table tr:last-child td { border-bottom: none; }
-    .calendar-table tr:hover td {
-      background: rgba(255,255,255,0.028);
-      transform: translateX(4px);
-    }
-    .date-cell {
-      font-family: var(--font-mono);
-      font-size: 11px; color: var(--text-muted);
-      white-space: nowrap;
-    }
+    .calendar-table tbody tr:last-child td { border-bottom: none; }
+    .calendar-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+    .date-cell { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
 
     /* ════════════════════════════════════════
        BADGES
     ════════════════════════════════════════ */
     .badge {
       display: inline-flex; align-items: center; gap: 4px;
-      padding: 4px 10px; border-radius: 20px;
+      padding: 3px 9px; border-radius: 6px;
+      font-size: 11px; font-weight: 600;
       font-family: var(--font-mono);
-      font-size: 10px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.6px;
     }
-    .badge-video {
-      background: var(--accent-green-dim);
-      color: var(--accent-green);
-      border: 1px solid rgba(0,255,136,0.22);
+    .badge-video { background: rgba(100,120,255,0.12); color: #8899ff; border: 1px solid rgba(100,120,255,0.2); }
+    .badge-post  { background: rgba(255,170,50,0.12);  color: #ffb347; border: 1px solid rgba(255,170,50,0.2); }
+    .badge-pending  { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-done     { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+    .badge-gerando  { background: rgba(255,170,50,0.12); color: #ffb347; border: 1px solid rgba(255,170,50,0.2); }
+    .badge-aprovado { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+    .badge-agendado { background: rgba(100,120,255,0.12); color: #8899ff; border: 1px solid rgba(100,120,255,0.2); }
+    .badge-rejeitado{ background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(255,68,102,0.2); }
+); padding: 24px 22px;
+      position: relative; overflow: hidden;
+      transition: border-color 250ms ease, transform 250ms ease, box-shadow 250ms ease;
+      animation: fadeInCard 0.4s ease both;
     }
-    .badge-post {
-      background: rgba(255,255,255,0.05);
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
+    .stat-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,255,136,0.05) 0%, transparent 55%);
+      pointer-events: none;
     }
-    .badge-pending {
-      background: transparent;
-      color: var(--text-primary);
-      border: 1px solid rgba(255,255,255,0.2);
-      animation: badge-pulse 2.5s ease-in-out infinite;
+    .stat-card:hover {
+      border-color: rgba(0,255,136,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,255,136,0.06);
     }
-    .badge-done {
-      background: var(--accent-green-dim);
-      color: var(--accent-green);
-      border: 1px solid rgba(0,255,136,0.22);
+    .stat-label {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-muted); letter-spacing: 0.8px;
+      text-transform: uppercase; margin-bottom: 12px;
     }
-    .badge-progress {
-      background: rgba(255,255,255,0.05);
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
+    .stat-value {
+      font-family: var(--font-display); font-size: 36px;
+      font-weight: 800; color: var(--text-primary);
+      letter-spacing: -1.5px; line-height: 1;
+    }
+    .stat-change { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .stat-change .up { color: var(--accent-green); }
+
+    /* ════════════════════════════════════════
+       SECTION HEADER
+    ════════════════════════════════════════ */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: 13px;
+      font-weight: 700; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
 
     /* ════════════════════════════════════════
-       DOIS COLUNAS
+       TABLE
+    ════════════════════════════════════════ */
+    .calendar-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .calendar-table th {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px;
+      padding: 14px 12px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .calendar-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+    .calendar-table tbody tr:last-child td { border-bottom: none; }
+    .calendar-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+    .date-cell { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+    /* ════════════════════════════════════════
+       BADGES
+    ════════════════════════════════════════ */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 6px;
+      font-size: 11px; font-weight: 600;
+      font-family: var(--font-mono);
+    }
+    .badge-video { background: rgba(100,120,255,0.12); color: #8899ff; border: 1px solid rgba(100,120,255,0.2); }
+    .badge-post  { background: rgba(255,170,50,0.12);  color: #ffb347; border: 1px solid rgba(255,170,50,0.2); }
+    .badge-pending  { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-done     { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+    .badge-gerando  { background: rgba(255,170,50,0.12); color: #ffb347; border: 1px solid rgba(255,170,50,0.2); }
+    .badge-aprovado { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+    .badge-agendado { background: rgba(100,120,255,0.12); color: #8899ff; border: 1px solid rgba(100,120,255,0.2); }
+    .badge-rejeitado{ background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(255,68,102,0.2); }
+
+    /* ════════════════════════════════════════
+       TWO-COL LAYOUT
     ════════════════════════════════════════ */
     .two-col {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 24px; margin-top: 28px;
+      gap: 20px; margin-top: 20px;
     }
 
     /* ════════════════════════════════════════
        ACTIVITY FEED
     ════════════════════════════════════════ */
     .activity-item {
-      display: flex; gap: 14px;
-      padding: 13px 0;
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 0;
       border-bottom: 1px solid var(--border-subtle);
     }
     .activity-item:last-child { border-bottom: none; }
-    .activity-icon {
-      width: 36px; height: 36px;
-      border-radius: 10px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      background: rgba(0,255,136,0.07);
-      border: 1px solid rgba(0,255,136,0.14);
-    }
-    .activity-body { flex: 1; min-width: 0; }
-    .activity-title {
-      font-size: 13px; color: var(--text-secondary);
-      line-height: 1.4;
-    }
-    .activity-time {
-      font-family: var(--font-mono);
-      font-size: 11px; color: var(--text-muted); margin-top: 3px;
-    }
+    .activity-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .activity-body {}
+    .activity-title { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+    .activity-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
     /* ════════════════════════════════════════
-       PROGRESS BARS
+       PROGRESS
     ════════════════════════════════════════ */
-    .progress-wrap { margin-bottom: 18px; }
-    .progress-header {
-      display: flex; justify-content: space-between;
-      font-size: 13px; margin-bottom: 8px;
-    }
-    .progress-label { color: var(--text-secondary); }
-    .progress-val {
-      font-family: var(--font-mono); font-size: 12px;
-      color: var(--accent-green); font-weight: 600;
-    }
+    .progress-wrap { margin-bottom: 16px; }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .progress-label { font-size: 12px; color: var(--text-secondary); }
+    .progress-val { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
     .progress-bar {
-      background: rgba(255,255,255,0.06);
-      border-radius: 4px; height: 4px; overflow: visible;
-      position: relative;
+      height: 4px; background: rgba(255,255,255,0.06);
+      border-radius: 2px; overflow: hidden;
     }
     .progress-fill {
-      height: 100%; border-radius: 4px;
-      background: linear-gradient(90deg, var(--accent-green-dark), var(--accent-green));
-      transition: width 0.85s cubic-bezier(0.22,1,0.36,1);
-      position: relative;
-    }
-    .progress-fill::after {
-      content: '';
-      position: absolute; right: -1px; top: 50%;
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--accent-green);
-      transform: translateY(-50%);
-      box-shadow: 0 0 7px var(--accent-green);
+      height: 100%; background: var(--accent-green);
+      border-radius: 2px; transition: width 1s ease;
     }
     .code-note {
-      margin-top: 20px; padding: 13px 15px;
-      background: var(--accent-green-faint);
-      border: 1px solid rgba(0,255,136,0.12);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-      font-size: 11px; color: var(--text-muted);
-      line-height: 1.6;
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-muted); margin-top: 16px; line-height: 1.6;
     }
-
-    /* ════════════════════════════════════════
-       FORMULÁRIOS
-    ════════════════════════════════════════ */
-    .form-group { margin-bottom: 18px; }
-    .form-label {
-      display: block;
-      font-family: var(--font-mono);
-      font-size: 10px; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 1.2px;
-      margin-bottom: 8px;
-    }
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
-      padding: 11px 14px; font-size: 14px;
-      font-family: var(--font-body);
-      transition: border-color 200ms, box-shadow 200ms;
-    }
-    .form-input::placeholder, .form-textarea::placeholder {
-      color: var(--text-muted);
-    }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none;
-      border-color: rgba(0,255,136,0.4);
-      box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
-    }
-    .form-textarea { resize: vertical; min-height: 88px; }
-    .form-select { cursor: pointer; }
 
     /* ════════════════════════════════════════
        TABS
     ════════════════════════════════════════ */
     .tabs {
-      display: flex; gap: 4px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      padding: 4px; border-radius: 12px; margin-bottom: 24px;
+      display: flex; gap: 8px; margin-bottom: 20px;
     }
     .tab-btn {
-      flex: 1; padding: 9px 12px; border: none; background: none;
-      color: var(--text-muted); cursor: pointer; border-radius: 9px;
-      font-size: 13px; font-weight: 600; font-family: var(--font-body);
+      padding: 8px 18px; border-radius: var(--radius-sm);
+      font-family: var(--font-body); font-size: 13px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
       transition: all 200ms ease;
     }
-    .tab-btn.active { background: var(--accent-green); color: var(--text-inverse); }
-    .tab-btn:not(.active):hover {
-      color: var(--text-primary);
-      background: rgba(255,255,255,0.04);
+    .tab-btn:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.16); }
+    .tab-btn.active {
+      background: var(--accent-green-dim);
+      color: var(--accent-green);
+      border-color: rgba(0,255,136,0.3);
     }
 
     /* ════════════════════════════════════════
-       INFO BOX
+       FORM
     ════════════════════════════════════════ */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 7px;
+      font-family: var(--font-mono);
+    }
+    .form-input {
+      width: 100%; padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); font-family: var(--font-body);
+      font-size: 13px; outline: none;
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+    .form-input:focus {
+      border-color: rgba(0,255,136,0.4);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+    .form-textarea {
+      width: 100%; padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); font-family: var(--font-body);
+      font-size: 13px; outline: none; resize: vertical; min-height: 90px;
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+    .form-textarea:focus {
+      border-color: rgba(0,255,136,0.4);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+    }
+    .form-textarea::placeholder { color: var(--text-muted); }
     .info-box {
-      background: var(--accent-green-faint);
-      border: 1px solid rgba(0,255,136,0.15);
-      border-left: 3px solid var(--accent-green);
-      padding: 13px 16px; border-radius: var(--radius-sm);
-      margin-bottom: 18px;
-      font-size: 13px; color: var(--text-secondary);
-      line-height: 1.6;
+      background: rgba(0,255,136,0.04);
+      border: 1px solid rgba(0,255,136,0.12);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.6; margin-bottom: 20px;
     }
     .info-box strong { color: var(--accent-green); }
 
     /* ════════════════════════════════════════
-       STATUS DOT
-    ════════════════════════════════════════ */
-    .status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      display: inline-block; margin-right: 9px;
-      vertical-align: middle;
-    }
-    .dot-green {
-      background: var(--accent-green);
-      box-shadow: 0 0 6px rgba(0,255,136,0.5);
-    }
-    .dot-dim { background: rgba(255,255,255,0.2); }
-
-    /* ════════════════════════════════════════
-       TOAST
-    ════════════════════════════════════════ */
-    .toast {
-      position: fixed; bottom: 28px; right: 28px;
-      background: var(--accent-green); color: var(--text-inverse);
-      padding: 13px 22px; border-radius: 12px;
-      font-size: 14px; font-weight: 700; font-family: var(--font-body);
-      z-index: 9999;
-      animation: slideInToast 0.32s cubic-bezier(0.22,1,0.36,1);
-      box-shadow: 0 4px 28px rgba(0,255,136,0.32);
-      max-width: 360px;
-    }
-
-    /* ════════════════════════════════════════
-       ÚLTIMAS GERAÇÕES — lista
+       GENERATE HISTORY
     ════════════════════════════════════════ */
     .gen-item {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 12px 0;
       border-bottom: 1px solid var(--border-subtle);
-      font-size: 13px; gap: 12px;
     }
     .gen-item:last-child { border-bottom: none; }
-    .gen-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-    .gen-theme { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .gen-right { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+    .gen-left { display: flex; align-items: center; gap: 10px; }
+    .gen-theme { font-size: 13px; color: var(--text-secondary); }
+    .gen-right { display: flex; align-items: center; gap: 10px; }
     .gen-date { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
 
     /* ════════════════════════════════════════
-       INTEGRAÇÕES — lista
+       QUEUE CARDS
     ════════════════════════════════════════ */
+    .queue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .queue-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 250ms ease, transform 250ms ease;
+      animation: fadeInCard 0.35s ease both;
+    }
+    .queue-card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
+    .queue-card.status-pendente { border-left: 3px solid var(--accent-orange); }
+    .queue-card.status-gerando  { border-left: 3px solid #ffb347; }
+    .queue-card.status-aprovado { border-left: 3px solid var(--accent-green); }
+    .queue-card.status-agendado { border-left: 3px solid #8899ff; }
+    .queue-card.status-rejeitado{ border-left: 3px solid var(--accent-red); }
+    .queue-preview {
+      width: 100%; height: 180px; object-fit: cover;
+      display: block; background: rgba(255,255,255,0.04);
+    }
+    .queue-preview-placeholder {
+      width: 100%; height: 180px;
+      background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .queue-preview-placeholder-icon { font-size: 32px; opacity: 0.3; }
+    .queue-preview-placeholder-text {
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+    }
+    .queue-body { padding: 16px; }
+    .queue-meta {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .queue-theme {
+      font-size: 13px; font-weight: 600; color: var(--text-primary);
+      margin-bottom: 6px; line-height: 1.4;
+    }
+    .queue-date {
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .queue-actions { display: flex; gap: 8px; }
+    .queue-spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,180,55,0.3);
+      border-top-color: #ffb347;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 4px; vertical-align: middle;
+    }
+
+    /* ════════════════════════════════════════
+       SCHEDULE MODAL
+    ════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      animation: fadeInCard 0.2s ease both;
+    }
+    .modal-box {
+      background: #0f0f1a;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 420px; max-width: 95vw;
+      animation: fadeInCard 0.25s ease both;
+    }
+    .modal-title {
+      font-family: var(--font-display); font-size: 18px;
+      font-weight: 700; color: var(--text-primary);
+      margin-bottom: 6px; letter-spacing: -0.4px;
+    }
+    .modal-sub {
+      font-size: 12px; color: var(--text-muted); margin-bottom: 24px;
+    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .datetime-input {
+      width: 100%; padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); font-family: var(--font-body);
+      font-size: 13px; outline: none;
+      transition: border-color 200ms ease;
+      color-scheme: dark;
+    }
+    .datetime-input:focus {
+      border-color: rgba(0,255,136,0.4);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.08);
+    }
+
+    /* ════════════════════════════════════════
+       SETTINGS
+    ════════════════════════════════════════ */
+    .status-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; margin-right: 10px; vertical-align: middle;
+    }
+    .dot-green { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green-glow); }
+    .dot-dim   { background: rgba(255,255,255,0.2); }
     .integration-item {
       display: flex; justify-content: space-between; align-items: center;
       padding: 13px 0;
@@ -581,13 +677,49 @@
     .integration-item:last-child { border-bottom: none; }
     .integration-name { font-weight: 500; }
     .integration-note { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+    /* ════════════════════════════════════════
+       TOAST
+    ════════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: rgba(20,20,30,0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-md);
+      padding: 14px 22px;
+      font-size: 13px; color: var(--text-primary);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      animation: slideInToast 0.3s ease;
+      z-index: 300; max-width: 380px; line-height: 1.5;
+    }
+
+    /* ════════════════════════════════════════
+       EMPTY STATE
+    ════════════════════════════════════════ */
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+    .empty-title {
+      font-family: var(--font-display); font-size: 16px;
+      color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .empty-sub { font-family: var(--font-mono); font-size: 12px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .two-col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useCallback } = React;
 
 /* ── WEBHOOKS ── */
 const N8N_BASE = 'https://facilzap.app.n8n.cloud/webhook';
@@ -595,26 +727,43 @@ const WEBHOOKS = {
   triggerVideo: `${N8N_BASE}/gerar-video`,
   triggerPost:  `${N8N_BASE}/gerar-post`,
   getCalendar:  `${N8N_BASE}/calendario`,
+  getQueue:     `${N8N_BASE}/fila-revisao`,
+  aprovar:      `${N8N_BASE}/aprovar-conteudo`,
+  rejeitar:     `${N8N_BASE}/rejeitar-conteudo`,
+  agendar:      `${N8N_BASE}/agendar-conteudo`,
 };
 
-/* ── DADOS ── */
+/* ── FILA LOCAL (localStorage) ── */
+const STORAGE_KEY = 'facilzap_queue_v2';
+const getLocalQueue = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch(e) { return []; }
+};
+const saveLocalQueue = (q) => localStorage.setItem(STORAGE_KEY, JSON.stringify(q));
+const addToQueue = (item) => saveLocalQueue([...getLocalQueue(), item]);
+const updateQueueItem = (id, updates) =>
+  saveLocalQueue(getLocalQueue().map(i => i.id === id ? {...i, ...updates} : i));
+const removeFromQueue = (id) =>
+  saveLocalQueue(getLocalQueue().filter(i => i.id !== id));
+
+/* ── DADOS CALENDÁRIO ── */
 const CALENDAR_DATA = [
-  { id:1, date:'31/03', day:'Seg', type:'video', theme:'Como o WhatsApp pode dobrar suas vendas',   keywords:'vendas, automação, WhatsApp', status:'pending' },
-  { id:2, date:'01/04', day:'Ter', type:'post',  theme:'FacilZap vs atendimento manual',            keywords:'comparativo, produtividade',   status:'pending' },
-  { id:3, date:'02/04', day:'Qua', type:'video', theme:'5 erros que impedem sua empresa de crescer',keywords:'erros, crescimento, PME',      status:'pending' },
-  { id:4, date:'03/04', day:'Qui', type:'post',  theme:'3 motivos para automatizar hoje',           keywords:'urgência, benefícios, ROI',    status:'pending' },
-  { id:5, date:'04/04', day:'Sex', type:'video', theme:'Atendimento 24h sem contratar ninguém',     keywords:'automação, suporte, 24h',      status:'pending' },
-  { id:6, date:'05/04', day:'Sáb', type:'post',  theme:'Depoimento: cliente economizou 20h/semana',keywords:'depoimento, prova social',     status:'pending' },
-  { id:7, date:'07/04', day:'Seg', type:'video', theme:'Passo a passo: primeiro fluxo no FacilZap', keywords:'tutorial, onboarding',        status:'pending' },
-  { id:8, date:'09/04', day:'Qua', type:'video', theme:'Como responder 100 clientes ao mesmo tempo',keywords:'escala, eficiência, volume',  status:'pending' },
+  { id:1, date:'31/03', day:'Seg', type:'video', theme:'Como o WhatsApp pode dobrar suas vendas',    keywords:'vendas, automação, WhatsApp',  status:'pending' },
+  { id:2, date:'01/04', day:'Ter', type:'post',  theme:'FacilZap vs atendimento manual',             keywords:'comparativo, produtividade',    status:'pending' },
+  { id:3, date:'02/04', day:'Qua', type:'video', theme:'5 erros que impedem sua empresa de crescer', keywords:'erros, crescimento, PME',       status:'pending' },
+  { id:4, date:'03/04', day:'Qui', type:'post',  theme:'3 motivos para automatizar hoje',            keywords:'urgência, benefícios, ROI',     status:'pending' },
+  { id:5, date:'04/04', day:'Sex', type:'video', theme:'Atendimento 24h sem contratar ninguém',      keywords:'automação, suporte, 24h',       status:'pending' },
+  { id:6, date:'05/04', day:'Sáb', type:'post',  theme:'Depoimento: cliente economizou 20h/semana', keywords:'depoimento, prova social',      status:'pending' },
+  { id:7, date:'07/04', day:'Seg', type:'video', theme:'Passo a passo: primeiro fluxo no FacilZap',  keywords:'tutorial, onboarding',         status:'pending' },
+  { id:8, date:'09/04', day:'Qua', type:'video', theme:'Como responder 100 clientes ao mesmo tempo', keywords:'escala, eficiência, volume',   status:'pending' },
 ];
 
 const ACTIVITY_FEED = [
-  { icon:'✅', title:'Vídeo "Como dobrar vendas" publicado no Instagram', time:'Há 2 horas' },
-  { icon:'🎬', title:'Geração de vídeo iniciada para terça-feira',         time:'Há 3 horas' },
-  { icon:'🖼️', title:'Post imagem publicado com sucesso',                  time:'Ontem, 11h' },
-  { icon:'✅', title:'Script gerado pelo GPT-4o aprovado automaticamente', time:'Ontem, 09h' },
-  { icon:'🎬', title:'Avatar HeyGen renderizado em 1m 32s',                time:'Há 2 dias'  },
+  { icon:'✅', title:'Vídeo "Como dobrar vendas" enviado para revisão', time:'Há 2 horas' },
+  { icon:'🎬', title:'Geração de vídeo iniciada para terça-feira',       time:'Há 3 horas' },
+  { icon:'🖼️', title:'Post imagem aprovado e agendado',                  time:'Ontem, 11h' },
+  { icon:'✅', title:'Script gerado pelo GPT-4o pronto para revisão',    time:'Ontem, 09h' },
+  { icon:'🎬', title:'Avatar HeyGen renderizado em 1m 32s',              time:'Há 2 dias'  },
 ];
 
 /* ── HOOK: COUNT-UP ── */
@@ -626,7 +775,6 @@ function useCountUp(target, duration = 1400) {
     const timer = setInterval(() => {
       frame++;
       const progress = frame / totalFrames;
-      // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setVal(Math.min(target, Math.round(target * eased)));
       if (frame >= totalFrames) clearInterval(timer);
@@ -639,13 +787,13 @@ function useCountUp(target, duration = 1400) {
 /* ═══════════════════════════════════════
    SIDEBAR
 ═══════════════════════════════════════ */
-function Sidebar({ active, setActive }) {
+function Sidebar({ active, setActive, queueCounts }) {
   const items = [
     { id:'dashboard', icon:'◈', label:'Dashboard'      },
     { id:'calendar',  icon:'▦', label:'Calendário'     },
     { id:'generate',  icon:'⊕', label:'Gerar Conteúdo' },
-    { id:'videos',    icon:'▷', label:'Vídeos'         },
-    { id:'posts',     icon:'⊞', label:'Posts'          },
+    { id:'videos',    icon:'▷', label:'Vídeos',        badge: queueCounts.videos },
+    { id:'posts',     icon:'⊞', label:'Posts',         badge: queueCounts.posts  },
     { id:'settings',  icon:'⊛', label:'Configurações'  },
   ];
   return (
@@ -666,6 +814,7 @@ function Sidebar({ active, setActive }) {
           >
             <span className="nav-icon" style={{fontFamily:'var(--font-mono)'}}>{item.icon}</span>
             <span>{item.label}</span>
+            {item.badge > 0 && <span className="nav-badge">{item.badge}</span>}
           </div>
         ))}
       </nav>
@@ -729,26 +878,18 @@ function Dashboard({ setActive, toast }) {
           <tbody>
             {CALENDAR_DATA.slice(0, 4).map(row => (
               <tr key={row.id}>
-                <td className="date-cell" style={{paddingLeft:22}}>
-                  {row.date} · {row.day}
-                </td>
+                <td className="date-cell" style={{paddingLeft:22}}>{row.date} · {row.day}</td>
                 <td>
                   <span className={`badge badge-${row.type}`}>
                     {row.type === 'video' ? '▷ Vídeo' : '⊞ Post'}
                   </span>
                 </td>
-                <td style={{color:'var(--text-secondary)', maxWidth:280}}>
-                  {row.theme}
-                </td>
-                <td>
-                  <span className="badge badge-pending">Pendente</span>
-                </td>
+                <td style={{color:'var(--text-secondary)', maxWidth:280}}>{row.theme}</td>
+                <td><span className="badge badge-pending">Pendente</span></td>
                 <td style={{paddingRight:22}}>
-                  <button
-                    className="btn btn-primary btn-sm"
-                    onClick={() => toast(`Gerando: ${row.theme.substring(0,32)}...`)}
-                  >
-                    Gerar agora
+                  <button className="btn btn-primary btn-sm"
+                    onClick={() => { setActive('generate'); }}>
+                    Gerar
                   </button>
                 </td>
               </tr>
@@ -758,7 +899,6 @@ function Dashboard({ setActive, toast }) {
       </div>
 
       <div className="two-col">
-        {/* Atividade recente */}
         <div className="card">
           <div className="card-title">Atividade recente</div>
           {ACTIVITY_FEED.map((a, i) => (
@@ -772,14 +912,13 @@ function Dashboard({ setActive, toast }) {
           ))}
         </div>
 
-        {/* Performance */}
         <div className="card">
           <div className="card-title">Performance desta semana</div>
           {[
-            {label:'Vídeos gerados',           val:3, max:3, pct:100},
-            {label:'Posts gerados',             val:3, max:3, pct:100},
-            {label:'Publicações Instagram',     val:5, max:6, pct:83},
-            {label:'Taxa de aprovação automática', val:6, max:6, pct:100},
+            {label:'Vídeos gerados',       val:3, max:3, pct:100},
+            {label:'Posts gerados',         val:3, max:3, pct:100},
+            {label:'Aprovados para post',   val:5, max:6, pct:83},
+            {label:'Taxa de aprovação',     val:6, max:6, pct:100},
           ].map((m, i) => (
             <div className="progress-wrap" key={i}>
               <div className="progress-header">
@@ -792,7 +931,7 @@ function Dashboard({ setActive, toast }) {
             </div>
           ))}
           <div className="code-note">
-            // sistema 100% automático — nenhuma ação manual necessária esta semana
+            // conteúdo revisado por você antes de publicar
           </div>
         </div>
       </div>
@@ -806,10 +945,7 @@ function Dashboard({ setActive, toast }) {
 function Calendar({ toast }) {
   const [items, setItems] = useState(CALENDAR_DATA);
   const toggle = (id) => setItems(prev =>
-    prev.map(i => i.id === id
-      ? {...i, status: i.status === 'pending' ? 'done' : 'pending'}
-      : i
-    )
+    prev.map(i => i.id === id ? {...i, status: i.status === 'pending' ? 'done' : 'pending'} : i)
   );
   return (
     <>
@@ -874,24 +1010,36 @@ function Calendar({ toast }) {
 /* ═══════════════════════════════════════
    GERAR CONTEÚDO
 ═══════════════════════════════════════ */
-function Generate({ toast }) {
-  const [tab, setTab]       = useState('video');
-  const [theme, setTheme]   = useState('');
-  const [kws, setKws]       = useState('');
-  const [extra, setExtra]   = useState('');
+function Generate({ toast, setActive }) {
+  const [tab, setTab]         = useState('video');
+  const [theme, setTheme]     = useState('');
+  const [kws, setKws]         = useState('');
+  const [extra, setExtra]     = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
     if (!theme.trim()) { toast('Informe o tema do conteúdo!'); return; }
     setLoading(true);
+    const newItem = {
+      id: Date.now().toString(),
+      tipo: tab,
+      tema: theme,
+      keywords: kws,
+      url: null,
+      status: 'gerando',
+      criado_em: new Date().toISOString(),
+      agendado_para: null,
+    };
+    addToQueue(newItem);
     try {
       await fetch(tab === 'video' ? WEBHOOKS.triggerVideo : WEBHOOKS.triggerPost, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({theme, keywords:kws, extra, type:tab})
+        body: JSON.stringify({theme, keywords: kws, extra, type: tab, queueId: newItem.id})
       });
-      toast(`${tab === 'video' ? 'Vídeo' : 'Post'} em geração — será publicado automaticamente!`);
+      toast(`Conteúdo enviado para geração — verifique em ${tab === 'video' ? 'Vídeos' : 'Posts'} para revisar`);
       setTheme(''); setKws(''); setExtra('');
+      setTimeout(() => setActive(tab === 'video' ? 'videos' : 'posts'), 1200);
     } catch(e) {
       toast('Webhook disparado — verifique se o n8n está ativo');
     }
@@ -931,10 +1079,10 @@ function Generate({ toast }) {
             placeholder="Ex: Foque no público de restaurantes. Tom mais informal. Incluir chamada para testar grátis." />
         </div>
         <div className="info-box">
-          <strong>Fluxo automático: </strong>
+          <strong>Fluxo com revisão: </strong>
           {tab === 'video'
-            ? 'GPT-4o gera script → HeyGen cria avatar → Creatomate adiciona legendas → Publica no Instagram Reels'
-            : 'GPT-4o gera texto → DALL-E 3 cria imagem → Creatomate monta post com logo → Publica no Instagram Feed'}
+            ? 'GPT-4o gera script → HeyGen cria avatar → Creatomate finaliza → Você revisa e agenda → Publica no Instagram Reels'
+            : 'GPT-4o gera texto → DALL-E 3 cria imagem → Creatomate monta post → Você revisa e agenda → Publica no Instagram Feed'}
         </div>
         <button
           className="btn btn-primary"
@@ -942,35 +1090,314 @@ function Generate({ toast }) {
           onClick={handleGenerate}
           disabled={loading}
         >
-          {loading ? '⏳ Enviando para n8n...' : `Gerar e Publicar ${tab === 'video' ? 'Vídeo' : 'Post'}`}
+          {loading ? '⏳ Enviando para n8n...' : `Gerar para Revisão — ${tab === 'video' ? 'Vídeo' : 'Post'}`}
         </button>
-      </div>
-
-      <div className="card" style={{marginTop:20}}>
-        <div className="card-title">Últimas gerações</div>
-        {[
-          {type:'video', theme:'Como dobrar suas vendas com WhatsApp', date:'29/03 09:02'},
-          {type:'post',  theme:'FacilZap economiza 20h por semana',    date:'27/03 11:05'},
-          {type:'video', theme:'Atendimento 24h sem contratar ninguém',date:'26/03 09:00'},
-        ].map((g, i) => (
-          <div className="gen-item" key={i}>
-            <div className="gen-left">
-              <span className={`badge badge-${g.type}`}>{g.type === 'video' ? '▷' : '⊞'}</span>
-              <span className="gen-theme">{g.theme}</span>
-            </div>
-            <div className="gen-right">
-              <span className="gen-date">{g.date}</span>
-              <span className="badge badge-done">✓ Publicado</span>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════
-   CONFIGURAÇ��ES
+   MODAL DE AGENDAMENTO
+═══════════════════════════════════════ */
+function ScheduleModal({ item, onClose, onConfirm }) {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + 30);
+  const defaultVal = now.toISOString().slice(0,16);
+  const [dateTime, setDateTime] = useState(defaultVal);
+  const [loading, setLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    if (!dateTime) return;
+    setLoading(true);
+    await onConfirm(item.id, dateTime);
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal-box">
+        <div className="modal-title">Agendar publicação</div>
+        <div className="modal-sub">{item.tema}</div>
+        <div className="form-group">
+          <label className="form-label">Data e horário</label>
+          <input
+            type="datetime-local"
+            className="datetime-input"
+            value={dateTime}
+            onChange={e => setDateTime(e.target.value)}
+            min={new Date().toISOString().slice(0,16)}
+          />
+        </div>
+        <div className="modal-actions">
+          <button className="btn btn-primary" style={{flex:1}} onClick={handleConfirm} disabled={loading}>
+            {loading ? '⏳ Agendando...' : '📅 Confirmar Agendamento'}
+          </button>
+          <button className="btn btn-secondary" onClick={onClose}>Cancelar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   QUEUE CARD
+═══════════════════════════════════════ */
+function QueueCard({ item, onAprovar, onRejeitar, onAgendar }) {
+  const statusLabel = {
+    gerando:   'Em geração',
+    pendente:  'Aguardando revisão',
+    aprovado:  'Aprovado',
+    agendado:  'Agendado',
+    rejeitado: 'Rejeitado',
+    publicado: 'Publicado',
+  };
+  const statusBadge = {
+    gerando:   'badge-gerando',
+    pendente:  'badge-pending',
+    aprovado:  'badge-aprovado',
+    agendado:  'badge-agendado',
+    rejeitado: 'badge-rejeitado',
+    publicado: 'badge-done',
+  };
+
+  const formatDate = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  };
+
+  return (
+    <div className={`queue-card status-${item.status}`}>
+      {item.url ? (
+        item.tipo === 'video'
+          ? <video src={item.url} className="queue-preview" controls preload="metadata" />
+          : <img src={item.url} alt={item.tema} className="queue-preview" />
+      ) : (
+        <div className="queue-preview-placeholder">
+          <div className="queue-preview-placeholder-icon">
+            {item.tipo === 'video' ? '🎬' : '🖼️'}
+          </div>
+          {item.status === 'gerando' && (
+            <div className="queue-preview-placeholder-text">
+              <span className="queue-spinner" />
+              gerando conteúdo...
+            </div>
+          )}
+          {item.status !== 'gerando' && (
+            <div className="queue-preview-placeholder-text">preview não disponível</div>
+          )}
+        </div>
+      )}
+      <div className="queue-body">
+        <div className="queue-meta">
+          <span className={`badge badge-${item.tipo}`}>
+            {item.tipo === 'video' ? '▷ Vídeo' : '⊞ Post'}
+          </span>
+          <span className={`badge ${statusBadge[item.status] || 'badge-pending'}`}>
+            {statusLabel[item.status] || item.status}
+          </span>
+        </div>
+        <div className="queue-theme">{item.tema}</div>
+        <div className="queue-date">
+          Criado {formatDate(item.criado_em)}
+          {item.agendado_para && ` · Agendado ${formatDate(item.agendado_para)}`}
+        </div>
+        {(item.status === 'pendente' || item.status === 'gerando') && (
+          <div className="queue-actions">
+            {item.status === 'pendente' && (
+              <>
+                <button className="btn btn-approve btn-sm" onClick={() => onAprovar(item)}>
+                  ✓ Aprovar
+                </button>
+                <button className="btn btn-danger btn-sm" onClick={() => onRejeitar(item.id)}>
+                  ✗ Rejeitar
+                </button>
+              </>
+            )}
+            {item.status === 'gerando' && (
+              <span style={{fontFamily:'var(--font-mono)',fontSize:11,color:'var(--text-muted)'}}>
+                <span className="queue-spinner" /> aguardando geração...
+              </span>
+            )}
+          </div>
+        )}
+        {item.status === 'aprovado' && (
+          <div className="queue-actions">
+            <button className="btn btn-primary btn-sm" onClick={() => onAgendar(item)}>
+              📅 Agendar publicação
+            </button>
+          </div>
+        )}
+        {item.url && item.status !== 'gerando' && (
+          <div style={{marginTop:8}}>
+            <a href={item.url} target="_blank" rel="noopener noreferrer"
+               className="btn btn-secondary btn-sm" style={{fontSize:11}}>
+              ↗ Ver conteúdo
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════
+   VIDEOS / POSTS PAGE
+═══════════════════════════════════════ */
+function ContentQueue({ tipo, toast }) {
+  const [queue, setQueue]         = useState([]);
+  const [tab, setTab]             = useState('revisao');
+  const [scheduleItem, setScheduleItem] = useState(null);
+
+  const reload = useCallback(() => {
+    const all = getLocalQueue();
+    setQueue(all.filter(i => i.tipo === tipo));
+  }, [tipo]);
+
+  useEffect(() => {
+    reload();
+    const interval = setInterval(reload, 5000);
+    return () => clearInterval(interval);
+  }, [reload]);
+
+  const handleAprovar = (item) => {
+    updateQueueItem(item.id, {status:'aprovado'});
+    setQueue(getLocalQueue().filter(i => i.tipo === tipo));
+    // Optionally notify n8n
+    fetch(WEBHOOKS.aprovar, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id: item.id, tipo: item.tipo, tema: item.tema})
+    }).catch(() => {});
+    toast('Conteúdo aprovado! Clique em "Agendar publicação" para definir data e hora.');
+  };
+
+  const handleRejeitar = (id) => {
+    updateQueueItem(id, {status:'rejeitado'});
+    setQueue(getLocalQueue().filter(i => i.tipo === tipo));
+    fetch(WEBHOOKS.rejeitar, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id})
+    }).catch(() => {});
+    toast('Conteúdo rejeitado.');
+  };
+
+  const handleAgendar = (item) => {
+    setScheduleItem(item);
+  };
+
+  const confirmAgendamento = async (id, dateTime) => {
+    updateQueueItem(id, {status:'agendado', agendado_para: dateTime});
+    setQueue(getLocalQueue().filter(i => i.tipo === tipo));
+    setScheduleItem(null);
+    try {
+      await fetch(WEBHOOKS.agendar, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({id, agendado_para: dateTime})
+      });
+      toast(`Publicação agendada para ${new Date(dateTime).toLocaleString('pt-BR')}`);
+    } catch(e) {
+      toast('Agendamento salvo localmente — verifique conexão com n8n');
+    }
+  };
+
+  const revisaoItems  = queue.filter(i => ['gerando','pendente','aprovado'].includes(i.status));
+  const publicadosItems = queue.filter(i => ['agendado','publicado','rejeitado'].includes(i.status));
+
+  const tipoLabel = tipo === 'video' ? 'Vídeo' : 'Post';
+
+  return (
+    <>
+      <div className="tabs">
+        <button className={`tab-btn${tab === 'revisao' ? ' active' : ''}`} onClick={() => setTab('revisao')}>
+          🔍 Fila de Revisão
+          {revisaoItems.filter(i=>i.status==='pendente').length > 0 && (
+            <span style={{
+              background:'var(--accent-orange)', color:'#000',
+              fontSize:10, fontWeight:700, padding:'1px 6px', borderRadius:8,
+              marginLeft:8
+            }}>
+              {revisaoItems.filter(i=>i.status==='pendente').length}
+            </span>
+          )}
+        </button>
+        <button className={`tab-btn${tab === 'publicados' ? ' active' : ''}`} onClick={() => setTab('publicados')}>
+          ✅ {tipoLabel}s Agendados/Publicados
+        </button>
+      </div>
+
+      {tab === 'revisao' && (
+        <>
+          {revisaoItems.length === 0 ? (
+            <div className="card">
+              <div className="empty-state">
+                <div className="empty-icon">{tipo === 'video' ? '🎬' : '🖼️'}</div>
+                <div className="empty-title">Nenhum conteúdo na fila</div>
+                <div className="empty-sub">
+                  // gere um {tipoLabel.toLowerCase()} na aba "Gerar Conteúdo" para revisar aqui
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="queue-grid">
+              {revisaoItems.map(item => (
+                <QueueCard
+                  key={item.id}
+                  item={item}
+                  onAprovar={handleAprovar}
+                  onRejeitar={handleRejeitar}
+                  onAgendar={handleAgendar}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === 'publicados' && (
+        <>
+          {publicadosItems.length === 0 ? (
+            <div className="card">
+              <div className="empty-state">
+                <div className="empty-icon">📅</div>
+                <div className="empty-title">Nenhum {tipoLabel.toLowerCase()} agendado ainda</div>
+                <div className="empty-sub">
+                  // aprove um conteúdo na aba de revisão para aparecer aqui
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="queue-grid">
+              {publicadosItems.map(item => (
+                <QueueCard
+                  key={item.id}
+                  item={item}
+                  onAprovar={handleAprovar}
+                  onRejeitar={handleRejeitar}
+                  onAgendar={handleAgendar}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {scheduleItem && (
+        <ScheduleModal
+          item={scheduleItem}
+          onClose={() => setScheduleItem(null)}
+          onConfirm={confirmAgendamento}
+        />
+      )}
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════
+   CONFIGURAÇÕES
 ═══════════════════════════════════════ */
 function Settings({ toast }) {
   const [n8nUrl, setN8nUrl] = useState('https://facilzap.app.n8n.cloud');
@@ -981,9 +1408,9 @@ function Settings({ toast }) {
       <div className="card">
         <div className="card-title">Conexões do Sistema</div>
         {[
-          {label:'URL do n8n',   val:n8nUrl, set:setN8nUrl, hint:'https://facilzap.app.n8n.cloud'},
-          {label:'Instagram @',  val:'@facilzapoficial', set:()=>{}, hint:'@suaconta'},
-          {label:'Google Sheet ID', val:'', set:()=>{}, hint:'1BxiM...'},
+          {label:'URL do n8n',      val:n8nUrl,              set:setN8nUrl, hint:'https://facilzap.app.n8n.cloud'},
+          {label:'Instagram @',     val:'@facilzapoficial',  set:()=>{},    hint:'@suaconta'},
+          {label:'Google Sheet ID', val:'',                  set:()=>{},    hint:'1BxiM...'},
         ].map((f, i) => (
           <div className="form-group" key={i}>
             <label className="form-label">{f.label}</label>
@@ -1000,8 +1427,8 @@ function Settings({ toast }) {
           {name:'n8n Cloud',        ok:true,  note:'facilzap.app.n8n.cloud'},
           {name:'OpenAI GPT-4o',    ok:true,  note:'API Key configurada'},
           {name:'HeyGen Avatar',    ok:true,  note:'FacilZap-n8n key ativa'},
-          {name:'Creatomate',       ok:false, note:'Aguardando API key'},
-          {name:'Instagram / Meta', ok:false, note:'Aguardando configuração'},
+          {name:'Creatomate',       ok:true,  note:'API key ativa'},
+          {name:'Instagram / Meta', ok:false, note:'Aprovação manual ativada'},
           {name:'Google Sheets',    ok:false, note:'Aguardando planilha'},
         ].map((s, i) => (
           <div className="integration-item" key={i}>
@@ -1016,6 +1443,30 @@ function Settings({ toast }) {
           </div>
         ))}
       </div>
+
+      <div className="card" style={{marginTop:20}}>
+        <div className="card-title">Fila de Conteúdo — Diagnóstico</div>
+        <div style={{fontFamily:'var(--font-mono)', fontSize:11, color:'var(--text-muted)', lineHeight:2}}>
+          {(() => {
+            const all = getLocalQueue();
+            const byStatus = {};
+            all.forEach(i => { byStatus[i.status] = (byStatus[i.status]||0) + 1; });
+            return Object.entries(byStatus).map(([s,c]) => (
+              <div key={s}>{`// ${s}: ${c} item${c>1?'s':''}`}</div>
+            ));
+          })()}
+          {getLocalQueue().length === 0 && <div>// fila vazia</div>}
+        </div>
+        <button className="btn btn-secondary btn-sm" style={{marginTop:16}}
+          onClick={() => {
+            if (window.confirm('Limpar toda a fila de conteúdo?')) {
+              localStorage.removeItem(STORAGE_KEY);
+              toast('Fila limpa!');
+            }
+          }}>
+          🗑 Limpar fila
+        </button>
+      </div>
     </div>
   );
 }
@@ -1024,51 +1475,51 @@ function Settings({ toast }) {
    APP PRINCIPAL
 ═══════════════════════════════════════ */
 function App() {
-  const [active, setActive]   = useState('dashboard');
+  const [active, setActive]     = useState('dashboard');
   const [toastMsg, setToastMsg] = useState(null);
+  const [queueCounts, setQueueCounts] = useState({videos:0, posts:0});
 
   const showToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3500);
   };
 
+  // Refresh badge counts every 5s
+  useEffect(() => {
+    const updateCounts = () => {
+      const all = getLocalQueue();
+      const pending = all.filter(i => i.status === 'pendente');
+      setQueueCounts({
+        videos: pending.filter(i => i.tipo === 'video').length,
+        posts:  pending.filter(i => i.tipo === 'post').length,
+      });
+    };
+    updateCounts();
+    const interval = setInterval(updateCounts, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const titles = {
     dashboard: 'Dashboard',
     calendar:  'Calendário Editorial',
     generate:  'Gerar Conteúdo',
-    videos:    'Vídeos Publicados',
-    posts:     'Posts Publicados',
+    videos:    'Vídeos',
+    posts:     'Posts',
     settings:  'Configurações',
   };
 
   const pages = {
     dashboard: <Dashboard setActive={setActive} toast={showToast} />,
     calendar:  <Calendar  toast={showToast} />,
-    generate:  <Generate  toast={showToast} />,
-    videos: (
-      <div className="card">
-        <div className="card-title">Vídeos Publicados</div>
-        <p style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--text-muted)',lineHeight:1.8}}>
-          // biblioteca de vídeos publicados em breve<br/>
-          // integração com Instagram Graph API pendente
-        </p>
-      </div>
-    ),
-    posts: (
-      <div className="card">
-        <div className="card-title">Posts Publicados</div>
-        <p style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--text-muted)',lineHeight:1.8}}>
-          // biblioteca de posts publicados em breve<br/>
-          // integração com Instagram Graph API pendente
-        </p>
-      </div>
-    ),
-    settings: <Settings toast={showToast} />,
+    generate:  <Generate  toast={showToast} setActive={setActive} />,
+    videos:    <ContentQueue tipo="video" toast={showToast} />,
+    posts:     <ContentQueue tipo="post"  toast={showToast} />,
+    settings:  <Settings  toast={showToast} />,
   };
 
   return (
     <>
-      <Sidebar active={active} setActive={setActive} />
+      <Sidebar active={active} setActive={setActive} queueCounts={queueCounts} />
       <div className="main">
         <div className="topbar">
           <div className="topbar-title">{titles[active]}</div>
