@@ -333,7 +333,7 @@ function buildActivityFeed() {
     else if (item.status === 'aprovado') feed.push({ icon:'✅', title:`${tipo} ${tema} aprovado para agendamento`, time: when });
     else if (item.status === 'rejeitado') feed.push({ icon:'🚫', title:`${tipo} ${tema} rejeitado`, time: when });
     else if (item.status === 'agendado') feed.push({ icon:'🐅', title:`${tipo} ${tema} agendado`, time: when });
-    else if (item.status === 'pendente') feed.push({ icon:'🎬', title:`${tipo} ${tema} pronto para revisão', time: when });
+    else if (item.status === 'pendente') feed.push({ icon:'🎬', title:`${tipo} ${tema} pronto para revisão`, time: when });
     else if (item.status === 'gerando') feed.push({ icon:'⚙~️', title:`Gerando ${tipo.toLowerCase()} ${tema}…`, time: when });
   });
   return feed.length ? feed : [{ icon:'💡', title:'Gere seu primeiro conteúdo para ver atividade aqui', time: '' }];
