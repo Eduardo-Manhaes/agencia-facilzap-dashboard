@@ -398,7 +398,7 @@ function Sidebar({ active, setActive, queueCounts }) {
   ];
   const renderItems = (items) => items.map(item => (
     <div key={item.id} className={`nav-item${active===item.id?' active':''}`} onClick={() => setActive(item.id)}>
-      <span className="nav-icon" style={{fontFamily:'var(--font-mono)"}}>{item.icon}</span>
+      <span className="nav-icon" style={{fontFamily:'var(--font-mono)'}}>{item.icon}</span>
       <span>{item.label}</span>
       {item.badge > 0 && <span className="nav-badge">{item.badge}</span>}
     </div>
