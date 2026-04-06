@@ -320,7 +320,7 @@ const saveLocalQueue = (q) => localStorage.setItem(STORAGE_KEY, JSON.stringify(q
 const addToQueue = (item) => saveLocalQueue([...getLocalQueue(), item]);
 const updateQueueItem = (id, updates) => saveLocalQueue(getLocalQueue().map(i => i.id === id ? {...i,...updates} : i));
 
-/* ── ACTIVITY FEED dinamico ── */
+/* ── ACTIVITY FEED dinâmico ── */
 function buildActivityFeed() {
   const queue = getLocalQueue();
   const feed = [];
@@ -332,9 +332,9 @@ function buildActivityFeed() {
     if (item.status === 'publicado') feed.push({ icon:'🚀', title:`${tipo} ${tema} publicado no Instagram`, time: when });
     else if (item.status === 'aprovado') feed.push({ icon:'✅', title:`${tipo} ${tema} aprovado para agendamento`, time: when });
     else if (item.status === 'rejeitado') feed.push({ icon:'🚫', title:`${tipo} ${tema} rejeitado`, time: when });
-    else if (item.status === 'agendado') feed.push({ icon:'🐅', title:`${tipo} ${tema} agendado`, time: when });
+    else if (item.status === 'agendado') feed.push({ icon:'📅', title:`${tipo} ${tema} agendado`, time: when });
     else if (item.status === 'pendente') feed.push({ icon:'🎬', title:`${tipo} ${tema} pronto para revisão`, time: when });
-    else if (item.status === 'gerando') feed.push({ icon:'⚙~️', title:`Gerando ${tipo.toLowerCase()} ${tema}…`, time: when });
+    else if (item.status === 'gerando') feed.push({ icon:'⚙️', title:`Gerando ${tipo.toLowerCase()} ${tema}…`, time: when });
   });
   return feed.length ? feed : [{ icon:'💡', title:'Gere seu primeiro conteúdo para ver atividade aqui', time: '' }];
 }
@@ -874,8 +874,7 @@ function ContentQueue({ tipo, toast }) {
                 <div className="queue-preview-placeholder">
                   <div className="queue-preview-placeholder-icon">{tipo==='video'?'🎬':'🖼️'}</div>
                   {item.status==='gerando'
-                    ? <div className="queue-preview-placeholder-text"><span className="queue-spinner"/>gerando conteúdo…</div>
-                    : <div className="queue-preview-placeholder-text">preview não disponível</div>}
+                    ? <div className="queue-preview-placeholder-text"><span className="queue-spinner"/>gerando conteúdo…</div>                   : <div className="queue-preview-placeholder-text">preview não disponível</div>}
                 </div>
               )}
               <div className="queue-body">
@@ -954,7 +953,7 @@ function Metricas({ toast }) {
   };
 
   // Dados de posts para tabela
-  const posts = data?.posts || data?.top_posts || [];
+  const posts = data?.posts || data?.top_posts |[];
   // Engajamento por tipo
   const byTipo = data?.por_tipo || null;
   // Heatmap (melhores horários): array [dom,seg,ter,qua,qui,sex,sab] com score 0-4
@@ -1093,7 +1092,10 @@ function Metricas({ toast }) {
                     </td>
                     <td style={{maxWidth:200}}>{(p.caption||p.legenda||p.tema||'—').substring(0,60)}{(p.caption||p.legenda||p.tema||'').length>60?'…':''}</td>
                     <td><span className={`badge badge-${p.tipo||p.media_type||'post'}`}>{(p.tipo||p.media_type)==='VIDEO'||p.tipo==='video'?'▷ Reel':'⊞ Post'}</span></td>
-                    <td style={{fontFamily:'var(--font-mono)',fontSize:11}}>{fmtNum(p.alcance||p.reach||0)}</td>
+                    <td><div className="bar-row" style={{gap:6}}>
+                      <div className="bar-track" style={{width:60}}><div className="bar-fill" style={{width:`${Math.round((p.alcance||p.reach||0)/maxReach*100)}%`}}/></div>
+                      <div className="bar-val" style={{width:'auto'}}>{fmtNum(p.alcance||p.reach||0)}</div>
+                    </div></td>
                     <td style={{fontFamily:'var(--font-mono)',fontSize:11}}>{fmtNum(p.curtidas||p.like_count||0)}</td>
                     <td style={{fontFamily:'var(--font-mono)',fontSize:11}}>{fmtNum(p.comentarios||p.comments_count||0)}</td>
                     <td style={{fontFamily:'var(--font-mono)',fontSize:11}}>{fmtNum(p.shares||p.share_count||0)}</td>
@@ -1139,11 +1141,6 @@ function Agente({ toast }) {
       // Pegar dados locais + cache de métricas para contexto
       const queue = getLocalQueue();
       const metricsCache = localStorage.getItem(METRICS_CACHE_KEY);
-      const metrics = metricsCache ? JSON.parse(metricsCache).d : null;
-      const context = {
-        fila: queue.length,
-        publicados: queue.filter(i=>i.status==='publicado').length,
-        aprovados: queue.filter(i=>i.status==='aprovadMETRICS_CACHE_KEY);
       const metrics = metricsCache ? JSON.parse(metricsCache).d : null;
       const context = {
         fila: queue.length,
@@ -1310,7 +1307,7 @@ function Settings({ toast }) {
   const integrations = [
     { name:'n8n Cloud',          status:n8nStatus,    ok:n8nStatus==='ok',  note: n8nStatus==='checking'?'verificando…':n8nStatus==='ok'?'facilzap.app.n8n.cloud · ativo':'webhook não responde' },
     { name:'Fila de Revisão',    status:n8nStatus,    ok:n8nStatus==='ok',  note: n8nStatus==='ok'?'/fila-revisao · ativo':'erro — verificar workflow' },
-    { name:'Métricas Instagram', status:metricsStatur,ok:metricsStatus==='ok',note: metricsStatus==='checking'?'verificando…':metricsStatus==='ok'?'/metricas-instagram · ativo':'não configurado — token necessário' },
+    { name:'Métricas Instagram', status:metricsStatus,ok:metricsStatus==='ok',note: metricsStatus==='checking'?'verificando…':metricsStatus==='ok'?'/metricas-instagram · ativo':'não configurado — token necessário' },
     { name:'Instagram / Meta',   status:'manual',     ok:metricsStatus==='ok',note:'Aprovação manual ativada — sem auto-post' },
     { name:'OpenAI GPT-4o',      status:'ok',         ok:true,              note:'configurado via n8n' },
     { name:'HeyGen Avatar',      status:'ok',         ok:true,              note:'configurado via n8n' },
@@ -1407,7 +1404,7 @@ function App() {
     posts:     <ContentQueue tipo="post"  toast={showToast} />,
     metricas:  <Metricas  toast={showToast} />,
     agente:    <Agente    toast={showToast} />,
-    settings:  <Settings  toast={showToast} />,
+    settings:  <Settings  toast=;showToast} />,
   };
 
   return (
